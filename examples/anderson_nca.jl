@@ -60,14 +60,14 @@ end
 
 # nca self energy 
 # x ⊻ y	bitwise xor (exclusive or), ref: https://docs.julialang.org/en/v1/manual/mathematical-operations/
-# :?
+# x << y	logical/arithmetic shift left
+# A?B:C
 function Σnca(data::nca_data, t1::TimeGridPoint, t2::TimeGridPoint, st_sigma::UInt64)
     val = 0.0im
     for sp in 1:data.indexsize
         st_prop = ((st_sigma - 1) ⊻ sp) + 1
-        gtr = st_sigma & (1 << (sp - 1)) > 0
-        #                                                                  :??
-        val += 1.0im * data.p[st_prop][t1, t2] * (gtr ? data.Δ[sp][t1, t2] : -data.Δ[sp][t2, t1, false])
+        gtr = st_sigma & (1 << (sp - 1)) > 0 # condition gtr? 
+        val += 1.0im * data.p[st_prop][t1, t2] * (gtr ? data.Δ[sp][t1, t2] : -data.Δ[sp][t2, t1, false]) #false?
     end
     return val
 end
@@ -114,14 +114,14 @@ function dyson(data::nca_data, t1::TimeGridPoint, t2::TimeGridPoint, params::nca
 
         diff = norm(p_t1t2_cur - p_t1t2_next)
         done = diff < params.dyson_tol * norm(p_t1t2_cur)
-        # println("diff = ", diff)
+
         for s in 1:data.statesize
             data.p[s][t1,t2] = p_t1t2_next[s]
         end
         p_t1t2_cur .= p_t1t2_next
         iter += 1
     end
-    println("converged with iter = ", iter, ", diff = ", diff)
+    # println("converged with iter = ", iter, ", diff = ", diff)
 end
 
 function nca(p0, Δ, params::nca_params)
@@ -190,9 +190,7 @@ function main()
   # h5write("dat/output.h5", "output/Z", ρt)
   # h5write("dat/output.h5", "output/t", t)
 
-  A = collect(reshape(1:120, 15, 8))
   h5open("dat/output.h5", "w") do file
-    # write(file,"mygroup2/A",A)
     # write(file,"output/rho", ρt)
     # write(file,"output/Z", ρt)
     write(file, "output/t", t)
