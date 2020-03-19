@@ -1,4 +1,5 @@
 using LinearAlgebra
+using JLD
 
 using Keldysh, HDF5
 
@@ -185,19 +186,26 @@ function main()
 
   println("")
   println("save")
-  println("")
-  # h5write("dat/output.h5", "output/rho", ρt)
-  # h5write("dat/output.h5", "output/Z", ρt)
-  # h5write("dat/output.h5", "output/t", t)
-
   println(size(ρt))
+  println("")
+
+# =================
+# HDF5
+#   h5write("dat/output.h5", "output/rho", ρt)
+#   h5write("dat/output.h5", "output/Z", ρt)
+#   h5write("dat/output.h5", "output/t", t)
 
   h5open("dat/output.h5", "w") do file
-    write(file,"output/rho", ρt).
-    # write(file,"output/Z", ρt)
+    write(file,"output/rho", ρt)
+    write(file,"output/Z", ρt)
     write(file, "output/t", t)
   end
- 
+
+# =================
+# jld save
+
+save("dat/output.jld","rho", ρt,"Z",ρt,"t",t)
+
 # ====================
 #   ERROR: LoadError: MethodError: no method matching write(::HDF5File, ::String, ::Array{Complex{Float64},2})
 # Closest candidates are:
