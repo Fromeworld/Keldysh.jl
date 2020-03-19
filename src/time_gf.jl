@@ -1,5 +1,7 @@
 using LinearAlgebra
 
+
+              #? <:
 struct TimeGF <: AbstractArray{ComplexF64, 2}
   data::Array{ComplexF64, 2}
   grid::TimeGrid
