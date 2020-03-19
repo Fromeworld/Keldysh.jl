@@ -68,7 +68,7 @@ function Σnca(data::nca_data, t1::TimeGridPoint, t2::TimeGridPoint, st_sigma::U
     for sp in 1:data.indexsize
         st_prop = ((st_sigma - 1) ⊻ sp) + 1
         gtr = st_sigma & (1 << (sp - 1)) > 0 # condition gtr? 
-        val += 1.0im * data.p[st_prop][t1, t2] * (gtr ? data.Δ[sp][t1, t2] : -data.Δ[sp][t2, t1, false]) #false?
+        val += 1.0im * data.p[st_prop][t1, t2] * (gtr ? data.Δ[sp][t1, t2] : -data.Δ[sp][t2, t1, false]) # false?
     end
     return val
 end
@@ -140,6 +140,8 @@ function nca(p0, Δ, params::nca_params)
     return data
 end
 
+# ;tmax = 5.0 ????
+
 """
     run_anderson_nca(;tmax=5.0, npts_real = 51, β = 1.0, dos = Keldysh.flat_dos(), U = 4.0, ρ0 = [1.0, 0.0, 0.0, 0.0], tol=1e-6)
 
@@ -179,43 +181,38 @@ function run_anderson_nca(;tmax = 5.0, npts_real = 51, β = 1.0, dos = Keldysh.f
   return data
 end
 
+# 
+# dos = Keldysh.flat_dos(ν = 10.0, D = 10.0)
+# data = run_anderson_nca(β = 1.0, tmax = 5.0, npts_real = 101, U = 8.0, dos = dos)
 function main()
-  dos = Keldysh.flat_dos(ν = 10.0, D = 10.0)
-  data = run_anderson_nca(β = 1.0, tmax = 5.0, npts_real = 101, U = 8.0, dos = dos)
+  dos = Keldysh.flat_dos(ν = 10.0, D = 2.0)
+  data = run_anderson_nca(β = 10.0, tmax = 15.0, npts_real = 201, U = 8.0, dos = dos)
   t, ρt, Zt = populations(data.p)
 
   println("")
   println("save")
   println(size(ρt))
+  println("last t = ", t[length(t)])
   println("")
 
-# =================
-# HDF5
-#   h5write("dat/output.h5", "output/rho", ρt)
-#   h5write("dat/output.h5", "output/Z", ρt)
-#   h5write("dat/output.h5", "output/t", t)
+    # =================
+    # HDF5
+    #   h5write("dat/output.h5", "output/rho", ρt)
+    #   h5write("dat/output.h5", "output/Z", ρt)
+    #   h5write("dat/output.h5", "output/t", t)
 
   h5open("dat/output.h5", "w") do file
-    write(file,"output/rho", ρt)
-    write(file,"output/Z", ρt)
+    write(file, "output/rho", ρt)
+    write(file, "output/Z", ρt)
     write(file, "output/t", t)
   end
 
-# =================
-# jld save
-
-save("dat/output.jld","rho", ρt,"Z",ρt,"t",t)
-
-# ====================
-#   ERROR: LoadError: MethodError: no method matching write(::HDF5File, ::String, ::Array{Complex{Float64},2})
-# Closest candidates are:
-#   write(::Union{HDF5File, HDF5Group}, ::String, ::Any, ::String, ::Any, ::Any...) at /home/haixin/.julia/packages/HDF5/H0XJB/src/HDF5.jl:1632
-#   write(::AbstractString, ::Any, ::Any...) at io.jl:283
-#   write(::IO, ::Any, ::Any...) at io.jl:500
-# ====================
-
-
-  println("done")
+    # =================
+    # jld save
+    
+   save("dat/output.jld", "rho", ρt, "Z", ρt, "t", t)
+    
+    println("done")
 end
 
 main()

@@ -1,4 +1,4 @@
-using Plots
+using PyPlot
 using HDF5
 
 t,rho,Z= h5open("dat/output.h5" , "r") do file
@@ -9,10 +9,13 @@ t,rho,Z= h5open("dat/output.h5" , "r") do file
 end
 println("t=",t)
 println("size rho=",size(rho))
-
-plot(t,real(rho[:,1]))
-for i=2:4
-plot!(t,real(rho[:,i]))
-# plot!(t,imag(rho[:,i]))
+# PyPlot.close(p1)
+p1=PyPlot.figure()
+PyPlot.plot(t,real(rho[:,1]))
+PyPlot.plot(t,real(rho[:,2]).+0.01)
+for i=3:4
+PyPlot.plot(t,real(rho[:,i]))
+# PyPlot.plot(t,imag(rho[:,i]))
 end
-savefig("plot/plot_h5")
+PyPlot.savefig("plot/plot_h5.png")
+PyPlot.close(p1)
