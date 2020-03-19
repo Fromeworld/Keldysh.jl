@@ -192,11 +192,11 @@ function main()
 
   println(size(ρt))
 
-  # h5open("dat/output.h5", "w") do file
-  #   write(file,"output/rho", ρt)
-  #   # write(file,"output/Z", ρt)
-  #   write(file, "output/t", t)
-  # end
+  h5open("dat/output.h5", "w") do file
+    write(file,"output/rho", ρt).
+    # write(file,"output/Z", ρt)
+    write(file, "output/t", t)
+  end
  
 # ====================
 #   ERROR: LoadError: MethodError: no method matching write(::HDF5File, ::String, ::Array{Complex{Float64},2})
